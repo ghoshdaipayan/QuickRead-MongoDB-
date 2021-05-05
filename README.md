@@ -40,11 +40,11 @@ db.createCollection("user")
         * `db.<collection>.insert(<document or array of documents>)`
 
     * Examples:
-        * > Insert one document
+        * Insert one document
             ```
                 db.user.insertOne({name: "Jason", age: 25})
             ```
-        *  > Insert many documents
+        * Insert many documents
             ```
                 db.uset.insertMany(
                     [
@@ -109,23 +109,23 @@ db.createCollection("user")
         * `db.<collection>.replaceOne(<filter>, <new-data>)`
     
     * Examples:
-        * > To update the first document where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
+        * To update the first document where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
             ```
                 db.user.updateOne({name: "James"}, {$set: {name: "Jonathan"}})
             ```
-        *  > To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
+        * To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
             ```
                 db.user.updateMany({name: "James"}, {$set: {name: "Jonathan"}})
             ```
-        *  > To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**. Don't use UPDATE !!
+        * To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**. Don't use UPDATE !!
             ```
                 db.user.update({name: "James"}, {$set: {name: "Jonathan"}})
             ```
-        *  > To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**. Don't use UPDATE !!
+        * To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**. Don't use UPDATE !!
             ```
                 db.user.update({name: "James"}, {name: "Jonathan"})
             ```
-        *  > To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**.
+        * To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**.
             ```
                 db.user.replaceOne({name: "James"}, {name: "Jonathan"})
             ```
@@ -140,18 +140,18 @@ db.createCollection("user")
         * `db.<collection>.deleteMany(<filter>)`
 
     * Examples:
-        * > To delete first document **_user['name'] == James_**
+        * To delete first document **_user['name'] == James_**
             ```
                 db.user.deleteOne({name: "James"})
             ```
-        *  > To delete all documents where **_user['name'] == James_**
+        * To delete all documents where **_user['name'] == James_**
             ```
                 db.user.deleteMany({name: "James"})
             ```
 
 # Accessing Embedded Document
 
-> Sample **_users_** collection below : 
+Sample **_users_** collection below : 
 ```
 users = [
     {
@@ -180,7 +180,7 @@ To access document with **_houseNo == 4_** under **_address_** field in **_users
 
 # lookup() in Aggregate Module
 
-> Sample **_users_** & **_books_** collection below : 
+Sample **_users_** & **_books_** collection below : 
 
 ```
 users = [
@@ -201,7 +201,7 @@ To embedd **_user_** document in **_books_** collection under a new field **_cre
 
 # Schema Validation
 
-> Sample **_users_** collection below : 
+Sample **_users_** collection below : 
 
 ```
 users = [
