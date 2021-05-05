@@ -82,7 +82,7 @@ db.createCollection("user")
             ```
                 db.user.find({age: {$gt: 25}})
             ```
-    * PROJECTION:
+    * PROJECTION :
         * Projection is a way to further trim down what is displayed after a find command
 
         * Examples:
@@ -263,7 +263,9 @@ db.createCollection(
 ```
 # Modifying Schema Validation
 
-Below we changed the default **_validationAction_** from **_err_** to **_warn_**. We can also modify other field params here.
+* Below we changed the default **_validationAction_** from **_err_** to **_warn_**. Changing to **_warn_** will allow MongoDB to accept the insertion/update even if schema validation fails. It will simply log an warning message in the log file.
+
+* We can also modify other field params here.
 
 ```
 db.runCommand({
