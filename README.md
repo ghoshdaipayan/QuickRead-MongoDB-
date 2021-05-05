@@ -261,3 +261,50 @@ db.createCollection(
     }
 })
 ```
+# Modifying Schema Validation
+
+Below we changed the default **_validationAction_** from **_err_** to **_warn_**. We can also modify other field params here.
+
+```
+db.runCommand({
+    collMod: "user", 
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "age", "likes", "address"],
+            description: "json schema validation for user collection",
+            properties: {
+                "name": {
+                    bsonType: "string",
+                    description: "is required and is string"
+                },
+                "age": {
+                    bsonType: "double",
+                    description: "is required and is interger"
+                },
+                "likes": {
+                    bsonType: "array",
+                    minItems: 2,
+                    uniqueItems: true,
+                    description: "is required and is array"
+                },
+                "address":{
+                    bsonType: "object",
+                    required: ["houseNo", "city"],
+                    properties: {
+                        "houseNo": {
+                            bsonType: "double",
+                            description: "is required and is interger"
+                        },
+                        "city": {
+                            bsonType: "string",
+                            description: "is required and is string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    validationAction: "warn",
+})
+```
