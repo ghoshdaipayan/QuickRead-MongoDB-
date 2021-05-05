@@ -82,7 +82,7 @@ db.createCollection("user")
             ```
                 db.user.find({age: {$gt: 25}})
             ```
-    * __PROJECTION__:
+    * PROJECTION:
         * Projection is a way to further trim down what is displayed after a find command
 
         * Examples:
