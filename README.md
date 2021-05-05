@@ -66,19 +66,19 @@ db.createCollection("user")
         * `db.<collection>.find(<filter>, <options>)`
 
     * Examples:
-        * > To find the first document where `user["name"] == "James"`
+        * To find the first document where **_user["name"] == "James"_**
             ```
                 db.user.findOne({name: "James"})
             ```
-        *  > To find all documents in the user collection
+        * To find all documents in the **_user_** collection
             ```
                 db.user.find()
             ```
-        *  > To find all docmunets where `user["name"] == "James"`
+        * To find all docmunets where **_user["name"] == "James"_**
             ```
                 db.user.find({name: "James"})
             ```
-        *  > To find all documents where `user["age"] > 25`
+        * To find all documents where **_user["age"] > 25_**
             ```
                 db.user.find({age: {$gt: 25}})
             ```
@@ -86,11 +86,11 @@ db.createCollection("user")
         * Projection is a way to further trim down what is displayed after a find command
 
         * Examples:
-            * To find all documents where `user["age"] > 25` and only return the name and _id field
+            * To find all documents where **_user["age"] > 25_** and only return the name and _id field
             ```
                 db.user.find({age: {$gt: 25}}, {name: 1})
             ```
-            * To find all documents where `user["age"] > 25` and only return the name field
+            * To find all documents where **_user["age"] > 25_** and only return the name field
             ```
                 db.user.find({age: {$gt: 25}}, {name: 1, _id: 0})
             ```
@@ -109,23 +109,23 @@ db.createCollection("user")
         * `db.<collection>.replaceOne(<filter>, <new-data>)`
     
     * Examples:
-        * > To update the first document where `user['name'] == 'James'` with `user['name'] = 'Jonathan'`
+        * > To update the first document where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
             ```
                 db.user.updateOne({name: "James"}, {$set: {name: "Jonathan"}})
             ```
-        *  > To update all documents where `user['name'] == 'James'` with `user['name'] = 'Jonathan'`
+        *  > To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
             ```
                 db.user.updateMany({name: "James"}, {$set: {name: "Jonathan"}})
             ```
-        *  > To update all documents where `user['name'] == 'James'` with `user['name'] = 'Jonathan'`. Don't use UPDATE !!
+        *  > To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**. Don't use UPDATE !!
             ```
                 db.user.update({name: "James"}, {$set: {name: "Jonathan"}})
             ```
-        *  > To replace first documents where `user['name'] == 'James'` with document `{name: "Jonathan"}`. Don't use UPDATE !!
+        *  > To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**. Don't use UPDATE !!
             ```
                 db.user.update({name: "James"}, {name: "Jonathan"})
             ```
-        *  > To replace first documents where `user['name'] == 'James'` with document `{name: "Jonathan"}`.
+        *  > To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**.
             ```
                 db.user.replaceOne({name: "James"}, {name: "Jonathan"})
             ```
@@ -140,18 +140,18 @@ db.createCollection("user")
         * `db.<collection>.deleteMany(<filter>)`
 
     * Examples:
-        * > To delete first document `user['name'] == James`
+        * > To delete first document **_user['name'] == James_**
             ```
                 db.user.deleteOne({name: "James"})
             ```
-        *  > To delete all documents where `user['name'] == James`
+        *  > To delete all documents where **_user['name'] == James_**
             ```
                 db.user.deleteMany({name: "James"})
             ```
 
 # Accessing Embedded Document
 
-> Sample `users` collection below : 
+> Sample **_users_** collection below : 
 ```
 users = [
     {
@@ -174,13 +174,13 @@ users = [
     }
 ]
 ```
-To access document with `houseNo == 4` under `address` field in `users` collection, we will use the below command :
+To access document with **_houseNo == 4_** under **_address_** field in **_users_** collection, we will use the below command :
 
 > `db.users.find({"address.houseNo": 4})`
 
 # lookup() in Aggregate Module
 
-> Sample `users` & `books` collection below : 
+> Sample **_users_** & **_books_** collection below : 
 
 ```
 users = [
@@ -195,13 +195,13 @@ books = [
 ]
 ```
 
-To embedd `user` document in `books` collection under a new field "`creator`", we will use the below command : 
+To embedd **_user_** document in **_books_** collection under a new field **_creator_**, we will use the below command : 
 
 > `db.books.aggregate([{$lookup: {"from": "user", "localField": "author", "foreignField": "_id", "as": "creator"}}])`
 
 # Schema Validation
 
-> Sample `users` collection below : 
+> Sample **_users_** collection below : 
 
 ```
 users = [
@@ -217,7 +217,7 @@ users = [
 ]
 ```
 
-Suppose we want to make sure that every time a new document is inserted in `users` collection, the mentioned above fields are always present, we will use the below command : 
+Suppose we want to make sure that every time a new document is inserted in **_users_** collection, the mentioned above fields are always present, we will use the below command : 
 
 ```
 db.createCollection(
