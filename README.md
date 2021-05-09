@@ -16,13 +16,13 @@ use \<db-name>
 ### *__Lazy Creation__*:
 
 > `db.user.insertOne(<document/json>)`
-```
+```javascript
 db.user.inserOne({name: "Jason", age: 25})
 ```
 ### *__Expilicit creation__*: 
 
 > `db.createCollection(<collection-name>, <options>)`
-```
+```javascript
 db.createCollection("user")
 ```
 # Basic CRUD operations
@@ -41,11 +41,11 @@ db.createCollection("user")
 
     * Examples:
         * Insert one document
-            ```
+            ```javascript
                 db.user.insertOne({name: "Jason", age: 25})
             ```
         * Insert many documents
-            ```
+            ```javascript
                 db.uset.insertMany(
                     [
                         {name: "James", age: 41}, 
@@ -67,19 +67,19 @@ db.createCollection("user")
 
     * Examples:
         * To find the first document where **_user["name"] == "James"_**
-            ```
+            ```javascript
                 db.user.findOne({name: "James"})
             ```
         * To find all documents in the **_user_** collection
-            ```
+            ```javascript
                 db.user.find()
             ```
         * To find all docmunets where **_user["name"] == "James"_**
-            ```
+            ```javascript
                 db.user.find({name: "James"})
             ```
         * To find all documents where **_user["age"] > 25_**
-            ```
+            ```javascript
                 db.user.find({age: {$gt: 25}})
             ```
     * PROJECTION :
@@ -87,11 +87,11 @@ db.createCollection("user")
 
         * Examples:
             * To find all documents where **_user["age"] > 25_** and only return the name and _id field
-            ```
+            ```javascript
                 db.user.find({age: {$gt: 25}}, {name: 1})
             ```
             * To find all documents where **_user["age"] > 25_** and only return the name field
-            ```
+            ```javascript
                 db.user.find({age: {$gt: 25}}, {name: 1, _id: 0})
             ```
 3. **UPDATE**:
@@ -110,23 +110,23 @@ db.createCollection("user")
     
     * Examples:
         * To update the first document where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
-            ```
+            ```javascript
                 db.user.updateOne({name: "James"}, {$set: {name: "Jonathan"}})
             ```
         * To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**
-            ```
+            ```javascript
                 db.user.updateMany({name: "James"}, {$set: {name: "Jonathan"}})
             ```
         * To update all documents where **_user['name'] == 'James'_** with **_user['name'] = 'Jonathan'_**. Don't use UPDATE !!
-            ```
+            ```javascript
                 db.user.update({name: "James"}, {$set: {name: "Jonathan"}})
             ```
         * To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**. Don't use UPDATE !!
-            ```
+            ```javascript
                 db.user.update({name: "James"}, {name: "Jonathan"})
             ```
         * To replace first documents where **_user['name'] == 'James'_** with document **_{name: "Jonathan"}_**.
-            ```
+            ```javascript
                 db.user.replaceOne({name: "James"}, {name: "Jonathan"})
             ```
 4. **DELETE**:
@@ -141,18 +141,18 @@ db.createCollection("user")
 
     * Examples:
         * To delete first document **_user['name'] == James_**
-            ```
+            ```javascript
                 db.user.deleteOne({name: "James"})
             ```
         * To delete all documents where **_user['name'] == James_**
-            ```
+            ```javascript
                 db.user.deleteMany({name: "James"})
             ```
 
 # Accessing Embedded Document
 
 Sample **_users_** collection below : 
-```
+```javascript
 users = [
     {
         "name": "James",
@@ -182,7 +182,7 @@ To access document with **_houseNo == 4_** under **_address_** field in **_users
 
 Sample **_users_** & **_books_** collection below : 
 
-```
+```javascript
 users = [
     {"_id": 1, "name": "Jonathan"},
     {"_id": 2, "name": "Rio"},
@@ -190,8 +190,8 @@ users = [
 ]
 
 books = [
-    {"name": "celetial empire", author: 1},
-    {"name": "a day in the desert", author: 3}
+    {"name": "celetial empire", "author": 1},
+    {"name": "a day in the desert", "author": 3}
 ]
 ```
 
@@ -203,7 +203,7 @@ To embedd **_user_** document in **_books_** collection under a new field **_cre
 
 Sample **_users_** collection below : 
 
-```
+```javascript
 users = [
     {
         "name": "James",
@@ -219,7 +219,7 @@ users = [
 
 Suppose we want to make sure that every time a new document is inserted in **_users_** collection, the mentioned above fields are always present, we will use the below command : 
 
-```
+```javascript
 db.createCollection(
     "user", 
     {validator: {
@@ -267,7 +267,7 @@ db.createCollection(
 
 * We can also modify other field params here.
 
-```
+```javascript
 db.runCommand({
     collMod: "user", 
     validator: {
@@ -310,3 +310,141 @@ db.runCommand({
     validationAction: "warn",
 })
 ```
+
+
+# Operators
+
+1. Query and Projection Operators
+2. Update Operators
+3. Aggregation Pipeline Stages
+4. Aggregation Pipleline Operators
+
+### **Query Selectors**
+
+* **_Comparision_**
+    1. > **$eq**\
+       > `db.users.find({age: {$eq: 40}})` or `db.users.find({age: 40})`
+    2. > **$gt**\
+       > `db.users.find({age: {$gt: 40}})`
+    3. > **$gte**\
+       > `db.users.find({age: {$gte: 40}})`
+    4. > **$in**\
+       > `db.users.find({age: {$in: [40, 50]}})`
+    5. > **$lt**\
+       > `db.users.find({age: {$lt: 40}})`
+    6. > **$lte**\
+       > `db.users.find({age: {$lte: 40}})`
+    7. > **$ne**\
+       > `db.users.find({age: {$ne: 40}})`
+    8. > **$nin**\
+       > `db.users.find({age: {$nin: [40, 50]}})`
+
+* **_Logical_**
+    1. > **$and**\
+       > `db.users.find({$and: [{salary: {$gt: 10000}}, {age: 40}]})`
+    2. > **$nor**\
+       > `db.users.find({$nor: [{salary: {$gt: 10000}}, {age: 40}]})`
+    3. > **$not**\
+       > `db.users.find({$not: {salary: {$gt: 10000}}})`
+    4. > **$or**\
+       > `db.users.find({$or: [{salary: {$gt: 10000}}, {age: 40}]})`
+
+* **_Element_**
+    1. > **$exist**\
+       > `db.users.find(name: {$exist: true})` or `db.users.find(name: {$exist: true, $eq: "John"})`
+    2. > **$type**\
+       > `db.users.find(name: {$type: "string"})` or `db.users.find(name: {$type: "string", $eq: "John"})`
+
+* **_Evaluation_**
+    1. > **$expr**
+
+        Expression is bit more complex and we will try to understand it using two examples
+
+        * Example 1 : Finding all users whose salary is greater than expense
+          > `db.users.find({$expr: {$gt: ["$salary", "$expense"]}})`
+          
+        * Example 2: Using $cond (if, else, then)
+            ```javascript
+            db.users.find(
+                {
+                    $expr: {
+                        $gt: [
+                            {
+                                $cond: {
+                                    if: {$gt: ["$salary", 15000]},
+                                    then: {$subtract: ["$salary", 5000]},
+                                    else: "$salary"
+                                }
+                            },
+                            "$expense"
+                        ]
+                    }
+                }
+            )
+            ```
+    2. > **$jsonSchema**\
+       > See schema validation section
+
+    3. > **$mod**\
+       > `db.users.find(age: {$mod: [2, 0]})`
+
+    4. > **$regex**\
+       > `db.users.find(name: {$regex: /^Jhon/, $options: "i"})` or `db.users.find(name: {$regex: /^Jhon/})`
+      
+       Valid Options: 
+        * i
+        * m
+        * x
+        * s
+
+    5. > **$text**\
+       > **_Will check this later_**
+
+    6. > ~~**$where**~~\
+       > **_Don't Use_**
+
+* **_Array_**
+
+    1. > **$all**\
+       > `db.users.find({hobbies: {$all: ["sports", "drawing", "hiking"]}})`
+    2. > **$elemMatch**
+    
+        **Syntax** : `{<field>: {$elemMatch: {<query1>, <query2>, ... }}}`
+       > `db.scores.find({results: {$elemMatch: {$gte: 80, $lt: 85}}})` or ``
+    3. > **$size**\
+       > `db.users.find({hobbies: {$size: 3}})`
+
+> ### _Will see **Geospatial**, **Bitwise**, **Projection Operators** later on_
+
+
+# INSERT Operation
+
+
+### **importing data from a json file**
+
+> `mongoimport <file-name.json> -d <db-name> -c <collection-name> --jsonArray --drop`
+
+* **--jsonArray** : Specifies that the document contains an array of json objects
+
+* **--drop** : Specifies to drop the collection if a collection by same name exists. If not provided, imported data will be appended to the existing collection
+
+### **ordered** insertion
+
+By default, insert operation in MongoDB is ordered. So, if an array of documents are tried to be added at the same time and if there is error inserting one document in that, then all documents following that error document will also not be added.
+
+We can change that behaviour using **ordered** option.
+
+> `db.user.inserMany([{_id: 1, name: 'John', age: 45}, {_id: 2, name: 'Ray', age: 25}], {ordered: false})`
+
+### **writeConcern**
+
+There is a **journal** file in MongoDB which queues all the task that needs to be done before it is actually done on the DB. 
+
+We can make sure that journal file has been written for our operation using the below command.
+
+> `db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: true, wtimeout: 200}})`
+
+# READ operation
+
+**_See Query and Projection Operators in [OPERATORS](#operators)_**
+
