@@ -416,7 +416,7 @@ db.runCommand({
             )
             ```
     2. > **$jsonSchema**\
-       > See schema validation section
+       > See [schema validation](#Schema-Validation) section
 
     3. > **$mod**
         ```javascript
@@ -479,6 +479,36 @@ db.runCommand({
     3. > **$limit**
         ```javascript
             db.users.find().limit(10)
+        ```
+
+* **_Projection_**
+
+    1. **Display only name and exclude id & rest**
+        ```javascript
+            db.users.find({}, {name: 1, _id: 0})
+        ```
+
+    2. > **For embedded document**
+        ```javascript
+            db.users.find({}, {"network.id": 1})
+        ```
+
+    3. > **For embedded array**
+        ```javascript
+            // Example 1
+            db.users.find({genres: "action"}, {"genres.$": 1})
+            
+            // Example 2: with $elemMatch
+            db.users.find({genres: "action"}, {{$elemMatch: {$eq: "horror"}}})
+            db.users.find({}, {name: 1, _id: 0, {$elemMatch: {$eq: "horror"}}})
+
+            // Example 3: with $slice
+
+            // only display first 2 items in genres
+            db.users.find({genres: "action"}, {genres: {$slice: 2}})
+
+            // skip first 2 and then display the rest 3 item in genres
+            db.users.find({genres: "action"}, {genres: {$slice: [2, 3]}})
         ```
     
 * ### _Will see **Geospatial**, **Bitwise**, **Projection Operators** later on_
