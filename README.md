@@ -495,7 +495,7 @@ db.runCommand({
 
     3. > **For embedded array**
         ```javascript
-            // Example 1
+            // Example 1: with $
             db.users.find({genres: "action"}, {"genres.$": 1})
             
             // Example 2: with $elemMatch
@@ -504,14 +504,12 @@ db.runCommand({
 
             // Example 3: with $slice
 
-            // only display first 2 items in genres
-            db.users.find({genres: "action"}, {genres: {$slice: 2}})
+            db.users.find({genres: "action"}, {genres: {$slice: 2}}) //skip first 2
 
-            // skip first 2 and then display the rest 3 item in genres
-            db.users.find({genres: "action"}, {genres: {$slice: [2, 3]}})
+            db.users.find({genres: "action"}, {genres: {$slice: [2, 3]}}) //skip first 2 & display rest 3
         ```
     
-* ### _Will see **Geospatial**, **Bitwise**, **Projection Operators** later on_
+* ### _Will see **Geospatial**, **Bitwise** later on_
 
 
 # INSERT Operation
