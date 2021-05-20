@@ -46,7 +46,7 @@ db.createCollection("user")
             ```
         * Insert many documents
             ```javascript
-                db.uset.insertMany(
+                db.user.insertMany(
                     [
                         {name: "James", age: 41}, 
                         {name: "Ritesh", age: 32}, 
@@ -322,48 +322,81 @@ db.runCommand({
 ### **Query Selectors**
 
 * **_Comparision_**
-    1. > **$eq**\
-       > `db.users.find({age: {$eq: 40}})` or `db.users.find({age: 40})`
-    2. > **$gt**\
-       > `db.users.find({age: {$gt: 40}})`
-    3. > **$gte**\
-       > `db.users.find({age: {$gte: 40}})`
-    4. > **$in**\
-       > `db.users.find({age: {$in: [40, 50]}})`
-    5. > **$lt**\
-       > `db.users.find({age: {$lt: 40}})`
-    6. > **$lte**\
-       > `db.users.find({age: {$lte: 40}})`
-    7. > **$ne**\
-       > `db.users.find({age: {$ne: 40}})`
-    8. > **$nin**\
-       > `db.users.find({age: {$nin: [40, 50]}})`
+    1. > **$eq**
+        ```javascript
+            db.users.find({age: {$eq: 40}})` or `db.users.find({age: 40})
+        ```
+    2. > **$gt**
+        ```javascript
+            db.users.find({age: {$gt: 40}})
+        ```
+    3. > **$gte**
+        ```javascript
+            db.users.find({age: {$gte: 40}})
+        ```
+    4. > **$in**
+        ```javascript
+            db.users.find({age: {$in: [40, 50]}})
+        ```
+    5. > **$lt**
+        ```javascript
+            db.users.find({age: {$lt: 40}})
+        ```
+    6. > **$lte**
+        ```javascript
+            db.users.find({age: {$lte: 40}})
+        ```
+    7. > **$ne**
+        ```javascript
+            db.users.find({age: {$ne: 40}})
+        ```
+    8. > **$nin**
+        ```javascript
+            db.users.find({age: {$nin: [40, 50]}})
+        ```
 
 * **_Logical_**
-    1. > **$and**\
-       > `db.users.find({$and: [{salary: {$gt: 10000}}, {age: 40}]})`
-    2. > **$nor**\
-       > `db.users.find({$nor: [{salary: {$gt: 10000}}, {age: 40}]})`
-    3. > **$not**\
-       > `db.users.find({$not: {salary: {$gt: 10000}}})`
-    4. > **$or**\
-       > `db.users.find({$or: [{salary: {$gt: 10000}}, {age: 40}]})`
+    1. > **$and**
+        ```javascript
+            db.users.find({$and: [{salary: {$gt: 10000}}, {age: 40}]})
+        ```
+    2. > **$nor**
+        ```javascript
+            db.users.find({$nor: [{salary: {$gt: 10000}}, {age: 40}]})
+        ```
+    3. > **$not**
+        ```javascript
+            db.users.find({$not: {salary: {$gt: 10000}}})
+        ```
+    4. > **$or**
+        ```javascript
+            db.users.find({$or: [{salary: {$gt: 10000}}, {age: 40}]})
+        ```
 
 * **_Element_**
-    1. > **$exist**\
-       > `db.users.find(name: {$exist: true})` or `db.users.find(name: {$exist: true, $eq: "John"})`
-    2. > **$type**\
-       > `db.users.find(name: {$type: "string"})` or `db.users.find(name: {$type: "string", $eq: "John"})`
+    1. > **$exist**
+       ```javascript
+            db.users.find(name: {$exist: true})
+            db.users.find(name: {$exist: true, $eq: "John"})
+       ```
+    2. > **$type**
+
+        ```javascript
+            db.users.find(name: {$type: "string"})
+            db.users.find(name: {$type: "string", $eq: "John"})
+        ```
 
 * **_Evaluation_**
     1. > **$expr**
 
         Expression is bit more complex and we will try to understand it using two examples
 
-        * Example 1 : Finding all users whose salary is greater than expense
-          > `db.users.find({$expr: {$gt: ["$salary", "$expense"]}})`
+        * **_Example 1_** : Finding all users whose salary is greater than expense
+            ```javascript
+                db.users.find({$expr: {$gt: ["$salary", "$expense"]}})
+            ```
           
-        * Example 2: Using $cond (if, else, then)
+        * **_Example 2_**: Using $cond (if, else, then)
             ```javascript
             db.users.find(
                 {
@@ -385,12 +418,21 @@ db.runCommand({
     2. > **$jsonSchema**\
        > See schema validation section
 
-    3. > **$mod**\
-       > `db.users.find(age: {$mod: [2, 0]})`
+    3. > **$mod**
+        ```javascript
+            db.users.find(age: {$mod: [2, 0]})
+        ```
+            
 
-    4. > **$regex**\
-       > `db.users.find(name: {$regex: /^Jhon/, $options: "i"})` or `db.users.find(name: {$regex: /^Jhon/})`
-      
+    4. > **$regex**
+        ```javascript
+            db.users.find(name: {$regex: /^Jhon/, $options: "i"})
+        ```
+        or
+        ```javascript
+            db.users.find(name: {$regex: /^Jhon/})
+        ```
+     
        Valid Options: 
         * i
         * m
@@ -405,16 +447,41 @@ db.runCommand({
 
 * **_Array_**
 
-    1. > **$all**\
-       > `db.users.find({hobbies: {$all: ["sports", "drawing", "hiking"]}})`
+    1. > **$all**
+        ```javascript
+            db.users.find({hobbies: {$all: ["sports", "drawing", "hiking"]}})
+        ```
     2. > **$elemMatch**
-    
-        **Syntax** : `{<field>: {$elemMatch: {<query1>, <query2>, ... }}}`
-       > `db.scores.find({results: {$elemMatch: {$gte: 80, $lt: 85}}})` or ``
-    3. > **$size**\
-       > `db.users.find({hobbies: {$size: 3}})`
 
-> ### _Will see **Geospatial**, **Bitwise**, **Projection Operators** later on_
+        **Syntax** : `{<field>: {$elemMatch: {<query1>, <query2>, ... }}}`
+        ```javascript
+            db.scores.find({results: {$elemMatch: {$gte: 80, $lt: 85}}})
+        ```
+       
+    3. > **$size**
+        ```javascript
+            db.users.find({hobbies: {$size: 3}})
+        ```
+* **_Cursors_**
+    
+    1. > **$sort**\
+     1 is for ascending and -1 is for descending
+
+        ```javascript
+            db.users.find().sort({hobbies: 1})  
+        ```
+
+    2. > **$skip**
+        ```javascript
+            db.users.find().skip(10)
+        ```
+
+    3. > **$limit**
+        ```javascript
+            db.users.find().limit(10)
+        ```
+    
+* ### _Will see **Geospatial**, **Bitwise**, **Projection Operators** later on_
 
 
 # INSERT Operation
