@@ -480,6 +480,10 @@ db.runCommand({
         ```javascript
             db.users.find().limit(10)
         ```
+    
+    4. > Difference between **count()** and **size()**\
+       > **count :** Returns the total items in a cursor\
+       > **size :** Returns the total items after skip and limit has been applied on a cursor
 
 * **_Projection_**
 
@@ -503,7 +507,6 @@ db.runCommand({
             db.users.find({}, {name: 1, _id: 0, {$elemMatch: {$eq: "horror"}}})
 
             // Example 3: with $slice
-
             db.users.find({genres: "action"}, {genres: {$slice: 2}}) //skip first 2
 
             db.users.find({genres: "action"}, {genres: {$slice: [2, 3]}}) //skip first 2 & display rest 3
@@ -517,11 +520,13 @@ db.runCommand({
 
 ### **importing data from a json file**
 
-> `mongoimport <file-name.json> -d <db-name> -c <collection-name> --jsonArray --drop`
+> `mongoimport <file-name.json> -d <db-name> -c <collection-name> --jsonArray --drop --maintainInsertionOrder`
 
 * **--jsonArray** : Specifies that the document contains an array of json objects
 
 * **--drop** : Specifies to drop the collection if a collection by same name exists. If not provided, imported data will be appended to the existing collection
+
+* **--maintainInsertionOrder**: Maintains the order of the json array while importing
 
 ### **ordered** insertion
 
@@ -542,4 +547,95 @@ We can make sure that journal file has been written for our operation using the 
 # READ operation
 
 **_See Query and Projection Operators in [OPERATORS](#operators)_**
+
+# UPDATE operation
+
+$set, $inc, $min, $max, $mul, $rename, $unset, upsert
+
+with arrays
+
+$, $., $[] --> arrayFilters, $push, $pop, $pull, 
+
+1. **$set**
+    ```javascript    
+    db.users.updateMany({name: 'Jason'}, {$set: {age: 40}})
+
+    // use upsert option to add a new document if there isn't one already
+    db.users.updateMany({name: 'Jason'}, {$set: {age: 40}}, {upsert: true})
+    ```
+
+2. **$inc**
+    ```javascript
+    // increments age by 1    
+    db.users.updateMany({name: 'Jason'}, {$inc: {age: 1}})
+    ```
+
+3. **$min**
+    ```javascript
+    // sets the value of age to 35 if the current value is greater than 35
+    db.users.updateMany({name: 'Jason'}, {$min: {age: 35}})
+    ```
+
+4. **$max**
+    ```javascript
+    // sets the value of age to 55 if the current value is less than 55
+    db.users.updateMany({name: 'Jason'}, {$max: {age: 55}})
+    ```
+
+5. **$mul**
+    ```javascript
+    // multiplies 1.10 to current age value and sets it
+    db.users.updateMany({name: 'Jason'}, {$mul: {age: 1.10}})
+    ```
+
+6. **$rename**
+    ```javascript
+    db.users.updateMany({name: 'Jason'}, {$rename: {age: "totalAge"}})
+    ```
+
+7. **$unset**
+    ```javascript
+    // removes age field
+    db.users.updateMany({name: 'Jason'}, {$unset: {age: 1}})
+    ```
+
+8. **$**
+    ```javascript
+    // overwrite first matching document with new fields
+    db.users.updateMany({"hobbies.frequency": {$gte: 3}}, {$set: {"hobbies.$": {title: "Sports", frequency: 5}}})
+    ```
+
+9. **$.**
+    ```javascript
+    // adds a new field in the matching filter
+    db.users.updateMany({"hobbies.frequency": {$gte: 3}}, {$set: {"hobbies.$.goodFrequency": true}})
+    ```
+
+10. **$[] **
+    ```javascript
+    // adds a new field in all list items
+    db.users.updateMany({"hobbies.frequency": {$gte: 3}}, {$set: {"hobbies.$[].goodFrequency": true}})
+    ```
+
+11. **$[\<identifier\>], arrayFilter**
+    ```javascript
+    // adds a new field in the filtered list items
+    db.users.updateMany({"hobbies.frequency": {$gte: 3}}, {$set: {"hobbies.$[el].goodFrequency": true}}, {arrayFilters: [{"el.frequency": {$gte: 3}}]})
+    ```
+
+12. **$push**
+    ```javascript
+    ```
+
+
+13. **$pop**
+    ```javascript
+    ```
+
+
+14. **$pull**
+    ```javascript
+    ```
+
+
 
