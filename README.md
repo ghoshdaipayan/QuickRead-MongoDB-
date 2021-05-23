@@ -35,7 +35,7 @@ db.createCollection("user")
         * `insert`
     
     * Commands syntax:
-        * `db.<collection>.inserOne(<document>)`
+        * `db.<collection>.insertOne(<document>)`
         * `db.<collection>.insertMany(<array of documents>)`
         * `db.<collection>.insert(<document or array of documents>)`
 
@@ -550,12 +550,6 @@ We can make sure that journal file has been written for our operation using the 
 
 # UPDATE operation
 
-$set, $inc, $min, $max, $mul, $rename, $unset, upsert
-
-with arrays
-
-$, $., $[] --> arrayFilters, $push, $pop, $pull, 
-
 1. **$set**
     ```javascript    
     db.users.updateMany({name: 'Jason'}, {$set: {age: 40}})
@@ -613,29 +607,75 @@ $, $., $[] --> arrayFilters, $push, $pop, $pull,
 
 10. **$[] **
     ```javascript
-    // adds a new field in all list items
+    // adds a new field in all array items
     db.users.updateMany({"hobbies.frequency": {$gte: 3}}, {$set: {"hobbies.$[].goodFrequency": true}})
     ```
 
-11. **$[\<identifier\>], arrayFilter**
+11. **$[\<identifier\>], arrayFilters**
     ```javascript
-    // adds a new field in the filtered list items
+    // adds a new field in the filtered array items
     db.users.updateMany({"hobbies.frequency": {$gte: 3}}, {$set: {"hobbies.$[el].goodFrequency": true}}, {arrayFilters: [{"el.frequency": {$gte: 3}}]})
     ```
 
 12. **$push**
     ```javascript
+    // adds item to the array
+    db.users.updateMany({name: "Chris"}, {$push: {hobbies: "Music"}})
     ```
 
 
 13. **$pop**
     ```javascript
+    // removes first item from the array
+    db.users.updateMany({name: "Chris"}, {$pop: {hobbies: -1}})
+
+    // removes last item from the array
+    db.users.updateMany({name: "Chris"}, {$pop: {hobbies: 1}})
     ```
 
 
 14. **$pull**
     ```javascript
+    // syntax
+    { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
+    ```
+    ```javascript
+    // example collection
+    {
+        _id: 1,
+        fruits: [ "apples", "pears", "oranges", "grapes", "bananas" ],
+        vegetables: [ "carrots", "celery", "squash", "carrots" ]
+    }
+    {
+        _id: 2,
+        fruits: [ "plums", "kiwis", "oranges", "bananas", "apples" ],
+        vegetables: [ "broccoli", "zucchini", "carrots", "onions" ]
+    }
+
+    // pull can remove items from list when a condition matches
+    db.stores.updateMany({}, {$pull: {fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots"}}, {multi: true})
     ```
 
+15. **_Modifiers_**
+    * **$each :** Can be used with $push or $addToSet
+        ```javascript
+        //$addToSet
+        db.inventory.update({_id: 2 }, {$addToSet: {tags: {$each: ["camera", "electronics", "accessories"]}}})
+        
+        //$push
+        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"]}}})
+        ```
+    * **$sort :** To be used with each
+        ```javascript       
+        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $sort: -1}}})
+        ```
+    * **$slice :** To be used with each
+        ```javascript       
+        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $slice: 1}}})
+        ```
+    * **$position :** To be used with each
+         ```javascript       
+        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $position: 1}}})
+        ```
 
 
