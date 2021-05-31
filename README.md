@@ -1,15 +1,20 @@
 # View all DB's
 
-> `show dbs`
+```javascript
+    show dbs
+```
 
 # View all Collections
 
-> `show collections`
+```javascript
+    show collections
+```
 
 # Create DB
 
-use \<db-name>
-> `use users`
+```javascript
+    use users
+```
 
 # Create Collection
 
@@ -53,6 +58,12 @@ db.createCollection("user")
                         {name: "Giorgio", age: 12}
                     ]
                 )
+            ```
+
+        * Save v/s Insert
+            ```javascript
+                // save() inserts a new document if _id is provided and its not present already & if _id is present, then it updates the current document 
+                db.user.save({_id: 1, name: "James"})
             ```
 2. **READ**
 
@@ -147,6 +158,15 @@ db.createCollection("user")
         * To delete all documents where **_user['name'] == James_**
             ```javascript
                 db.user.deleteMany({name: "James"})
+            ```
+    
+    * remove()
+        * _remove_ does the same thing as that of _delete_ and _deleteOne_, the difference is the return from remove and delete
+
+        * Example:
+            ```javascript
+            db.user.remove({name: "James"})
+            db.user.remove({name: "James"}, {justOne: true})
             ```
 
 # Accessing Embedded Document
@@ -534,7 +554,9 @@ By default, insert operation in MongoDB is ordered. So, if an array of documents
 
 We can change that behaviour using **ordered** option.
 
-> `db.user.inserMany([{_id: 1, name: 'John', age: 45}, {_id: 2, name: 'Ray', age: 25}], {ordered: false})`
+```javascript
+db.user.inserMany([{_id: 1, name: 'John', age: 45}, {_id: 2, name: 'Ray', age: 25}], {ordered: false})
+```
 
 ### **writeConcern**
 
@@ -542,7 +564,10 @@ There is a **journal** file in MongoDB which queues all the task that needs to b
 
 We can make sure that journal file has been written for our operation using the below command.
 
-> `db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: true, wtimeout: 200}})`
+
+```javascript
+db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: true, wtimeout: 200}})
+```
 
 # READ operation
 
@@ -660,22 +685,197 @@ We can make sure that journal file has been written for our operation using the 
     * **$each :** Can be used with $push or $addToSet
         ```javascript
         //$addToSet
-        db.inventory.update({_id: 2 }, {$addToSet: {tags: {$each: ["camera", "electronics", "accessories"]}}})
+        db.inventory.updateOne({_id: 2 }, {$addToSet: {tags: {$each: ["camera", "electronics", "accessories"]}}})
         
         //$push
-        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"]}}})
+        db.inventory.updateOne({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"]}}})
         ```
     * **$sort :** To be used with each
         ```javascript       
-        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $sort: -1}}})
+        db.inventory.updateOne({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $sort: -1}}})
         ```
     * **$slice :** To be used with each
         ```javascript       
-        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $slice: 1}}})
+        db.inventory.updateOne({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $slice: 1}}})
         ```
     * **$position :** To be used with each
          ```javascript       
-        db.inventory.update({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $position: 1}}})
+        db.inventory.updateOne({_id: 2 }, {$push: {tags: {$each: ["camera", "electronics", "accessories"], $position: 1}}})
         ```
 
+# DELETE operation
 
+**_See Delete section in [Basic CRUD operations](#basic-crud-operations)_**
+
+# EXPLAIN
+
+* explain() lets us view how mongodb has planned our query
+* **Syntax :** `db.<collection>.explain(<verbosity-mode>).find()`
+* Verbosity-Mode :
+    1. _**queryPlanner** (default)_
+    2. _**executionStats**_
+    3. _**allPlansExecution**_
+
+# INDEXES
+
+* Notes:
+    1. Used to speed up quries but can also slow it down aswell as the write operation.
+    2. By `default` there is always a index that is created on the _id field.
+    3. **COLLSCAN** (_Collection Scan_) : Searching through the collection (default if no idexes present).
+    4. **IXSCAN** (_Index Scan_) : Seaching using the index.
+    5. We should use indexes for sorting also as MongoDB has a threshold of 32MB to in-memory data.
+
+
+* View Index:
+    ```javascript
+    // returns list of all index keys and names
+    db.users.getIndexes()
+
+    // returns list of all indexe keys
+    db.users.getIndexKeys()
+    ```
+* Drop Index:
+    ```javascript
+    // Using index key: db.users.dropIndex({<index-key>})
+    db.users.dropIndex({"dob.age": 1})
+
+    // Using index name: db.users.dropIndex(<index-name>)
+    db.users.dropIndex("dob.age_1")
+    ```
+
+* Types of indexes: 
+    1. **Single Field Index**
+        ```javascript
+        // Example: index on age field in ascending order
+        db.users.createIndex({"age": 1})
+
+        // Example: index on age field in descending order
+        db.users.createIndex({"age": -1})
+        ```
+    2. **Compound Index**
+        ```javascript
+        db.users.createIndex({"age": 1, "gender": 1})
+        ```
+    3. **Configure Index**
+        * _Unique Index_
+            ```javascript
+            // unique index can be used to make sure that a field is unique (other way is jsonValidation)
+            db.users.createIndex({email: 1}, {unique: true})
+            ```
+        * _Partial Index_
+             ```javascript
+            // create index on age filed but for only males
+            db.users.createIndex({"age": 1}, {partialFilterExpression: {gender: "male"}})
+
+            // create index on age filed but for only people who are 60 or above
+            db.users.createIndex({"age": 1}, {partialFilterExpression: {age: {$gte: 60}}})     
+            ```
+        * _Unique with Partial Index_
+            ```javascript
+            // create index on age filed but for only males
+            db.users.createIndex({"email": 1}, {unique: true, partialFilterExpression: {email: {$exists: true}}})
+
+            // create index on age filed but for only people who are 60 or above
+            db.users.createIndex({"age": 1}, {partialFilterExpression: {age: {$gte: 60}}})
+            ```
+
+    4. **TTL Index** 
+        * TTL index can be used to destroy a collection/document after a specified amount of time
+        * Good for session related collection
+        * Can be created only on _date time field_ & on _single field indexes_
+        * 
+            ```javascript
+            db.session.insertOne({data: "Some data", createdAt: new Date()})
+            {
+                data: "Some data",
+                createdAt: ISODate("2020-05-29T07:05:02.242Z")
+            }
+            // below creates a TTL index
+            db.session.createIndex({createdAt: 1}, {expireAfterSeconds: 10})
+            ```
+
+    5. **Covered Index & Queries**
+        * A covered query is a scenario where MongoDB doesn't have to scan the collection and can just return result based on the index.
+
+        * Example:
+        ```javascript
+        // Imagine a collection which has a name field and a index like below exists
+        db.users.createIndex({name: 1})
+
+        // Now if we do a query on name field and using projection return only name, then such a scenario will be called as a covered query/index
+        db.users.find({name: 'John'}, {_id: 0, name: 1})
+        ```
+    6. **Winning Plan**
+        * Mongo db uses winning plan to find out which index to use
+        * It lets the chooses plan to run for 100 first doc and which ever returns the result fastest is used.
+        * This winning plan is cached in memory for this exact query
+        * The cache is cleared after **1000 writes** or **Update/Drop/Create Index** or **Restart MongoDB**
+
+    7. **Multikey Indexes**
+        * When a index is created on a array field, then mongoDB creates a multi-key index
+        ```javascript
+        // example collection
+        {
+            "_id" : 1,
+            "name" : "Max",
+            "hobbies" : [
+                    "Cooking",
+                    "Sports"
+            ],
+            "addresses" : [
+                    {
+                            "street" : "Second St."
+                    },
+                    {
+                            "street" : "Main St."
+                    }
+            ]
+        }
+
+        // below index will be an multi-key index
+        db.users.createIndex({hobbies: 1})
+        db.users.createIndex({addresses: 1})
+        db.users.createIndex({"addresses.street": 1})
+        ```
+        * Compoud Index with on two array field is not possible
+        * Compound Index witha a single field and an array field is possible
+
+    8. ### **Text Index**
+        * Text index is another type of Multikey Index used to search text
+        * _Example :_
+            ```javascript
+            db.store.createIndex({description: "text"})
+
+            // to search, we use the below query
+            db.store.find({$text: {$search: "book"}})
+            ```
+        * _Combined Text Indexes_ : We can't have more than one text index on a collection and thus we can use _combined text collection_
+            ```javascript
+            db.store.createIndex({description: "text", title: "text"})
+            ```
+        * _Exclude words from Text Search_
+            ```javascript
+            db.store.createIndex({$text: {$search: "awesome -red"}})    
+            ```
+        * _Text Score & Sorting via Text Score_
+            1. To see the text score:
+                ```javascript
+                db.store.find({$text: {$search: "awesome red"}}, {score: {$meta: "textScore"}})
+                ```
+            2. To sort via text score:
+                ```javascript
+                db.store.find({$text: {$search: "awesome red"}}).sort({score: {$meta: "textScore"}})
+                ```
+            3. Set Score Weight
+                ```javascript
+                    db.strore.createIndex({title: "text", description: "text"}, {weights: {text: 1, description: 10}})
+                ```
+        * _Set Default Language_
+            ```javascript
+                db.strore.createIndex({title: "text", description: "text"}, {defaultLanguage: "german"})
+            ```
+    9. **Create Index in Background** 
+        ```javascript
+            // doesn't block other operations on DB while insetion is happening
+            db.store.createIndex({description: "text"}, {background: true})
+        ```
