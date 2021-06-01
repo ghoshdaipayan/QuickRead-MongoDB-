@@ -879,3 +879,73 @@ db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: tru
             // doesn't block other operations on DB while insetion is happening
             db.store.createIndex({description: "text"}, {background: true})
         ```
+
+# GEOSPATIAL DATA
+
+## Create
+1. **Point**
+    ```javascript
+    db.places.insertOne({name: "California Academy of Sciences", location: {type: "Point", coordinates: [-122.4660947, 37.7698646]}})
+    ```
+2. **Polygon**
+    ```javascript
+    p1 = [-122.45478, 37.77487]
+    p2 = [-122.45307, 37.76649]
+    p3 = [-122.51044, 37.76408]
+    p4 = [-122.5113, 37.77141]
+
+    db.areas.insertOne({name: "Golden Gate Park", area: {type: "Polygon", coordinates: [[p1, p2, p3, p4, p1]]}})
+    ```
+
+## Index
+1. **2dsphere**
+    ```javascript
+    db.places.createIndex({location: "2dsphere"})
+    ```
+
+## Query
+1. **$near :** Find places near a certain location
+    ```javascript
+    // syntax
+    {
+        <location field>: {
+            $near: {
+            $geometry: {
+                type: "Point" ,
+                coordinates: [ <longitude> , <latitude> ]
+            },
+            $maxDistance: <distance in meters>,
+            $minDistance: <distance in meters>
+            }
+        }
+    }
+    ```
+    ```javascript
+    db.places.find({location: {$near: {$geometry: "Point", coordinates: [-122.46987128137837, 37.775648304531636]}}})
+    ```
+
+2. **$geoWithin :** Find places within an area
+    ```javascript
+    p1 = [-122.45478, 37.77487]
+    p2 = [-122.45307, 37.76649]
+    p3 = [-122.51044, 37.76408]
+    p4 = [-122.5113, 37.77141]
+
+    db.places.find({location: {$geoWithin: {$geometry: {type: "Polygon", coordinates: [[p1, p2, p3, p4, p1]]}}}})
+    ```
+
+3. **$centerSpehre :** Find location in a cretain area
+    ```javascript
+    db.places.find({location: {$geoWithin: {$centerSphere: [[-122.46449, 37.77295], 0.4/6378.1]}}})
+
+    // 1 km = 1 / 6378.1
+    // 1 mile = 1 / 3963.2
+    ```
+
+4. **$geoIntersects :** Find out which area is a location within
+    ```javascript
+    db.areas.find({area: {$geoIntersects: {$geometry: {type: "Point", coordinates: [-122.48824, 37.76976]}}}})
+    ```
+
+
+
