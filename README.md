@@ -1,3 +1,41 @@
+# Running Mongo
+
+```bat
+rem to stop mongo-db backgroud service in windows
+net stop MongoDB
+
+rem to start mongo-db backgroud service in windows
+net start MongoDB
+
+rem start mongo-db server  
+mongod
+
+rem start mongo-db server and point to path where db file should be stored
+mongod --dbpath "<path-to-db-file>"
+
+rem to start mongo-db server in authentication mode
+mongod --auth
+
+rem start mongo-db client on localhost & on default port
+mongo
+
+rem start mongo-db client and don't connect to any db
+mongo --nodb
+
+rem start mongo-db client on localhost on a non-default port
+mongo --port 28015
+
+rem start mongo-db client & connect to a remote host machine
+mongo --host mongodb0.example.com:28015
+mongo --host mongodb0.example.com --port 28015
+
+rem authenticate user while starting mongo-db client
+mongo --username alice --password --authenticationDatabase admin
+mongo --username alice --password --authenticationDatabase admin --host mongodb0.examples.com --port 28015
+
+```
+
+
 # View all DB's
 
 ```javascript
@@ -22,7 +60,7 @@
 
 > `db.user.insertOne(<document/json>)`
 ```javascript
-db.user.inserOne({name: "Jason", age: 25})
+db.user.insertOne({name: "Jason", age: 25})
 ```
 ### *__Expilicit creation__*: 
 
@@ -172,24 +210,24 @@ db.createCollection("user")
 # Accessing Embedded Document
 
 Sample **_users_** collection below : 
-```javascript
+```json
 users = [
     {
         "name": "James",
-        "age": 24
-        "likes": ["books", "games"]
+        "age": 24,
+        "likes": ["books", "games"],
         "address": {
             "houseNo": 4,
-            "city": "Kolkata"
+            "city": "Kolkata",
         }
     },
     {
         "name": "Rio",
-        "age": 56
+        "age": 56,
         "likes": ["travelling", "cricket"],
         "address": {
             "houseNo": 2,
-            "city": "Mumbai"
+            "city": "Mumbai",
         }
     }
 ]
@@ -223,7 +261,7 @@ To embedd **_user_** document in **_books_** collection under a new field **_cre
 
 Sample **_users_** collection below : 
 
-```javascript
+```json
 users = [
     {
         "name": "James",
@@ -664,17 +702,17 @@ db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: tru
     // syntax
     { $pull: { <field1>: <value|condition>, <field2>: <value|condition>, ... } }
     ```
-    ```javascript
+    ```json
     // example collection
     {
-        _id: 1,
-        fruits: [ "apples", "pears", "oranges", "grapes", "bananas" ],
-        vegetables: [ "carrots", "celery", "squash", "carrots" ]
+        "_id": 1,
+        "fruits": [ "apples", "pears", "oranges", "grapes", "bananas" ],
+        "vegetables": [ "carrots", "celery", "squash", "carrots" ]
     }
     {
-        _id: 2,
-        fruits: [ "plums", "kiwis", "oranges", "bananas", "apples" ],
-        vegetables: [ "broccoli", "zucchini", "carrots", "onions" ]
+        "_id": 2,
+        "fruits": [ "plums", "kiwis", "oranges", "bananas", "apples" ],
+        "vegetables": [ "broccoli", "zucchini", "carrots", "onions" ]
     }
 
     // pull can remove items from list when a condition matches
@@ -946,6 +984,126 @@ db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: tru
     ```javascript
     db.areas.find({area: {$geoIntersects: {$geometry: {type: "Point", coordinates: [-122.48824, 37.76976]}}}})
     ```
+    
+# AGGREGATION
+
+**Aggregation Pipeline Stages**
+
+* $match
+* $group
+* $sort
+* $project
+* $unwind
 
 
+1. ## $match, $group, $sort
 
+```javascript
+// $sum, $avg
+db.person.aggregate([
+    {$match: {"dob.age": {$gt: 50}}},
+    {$group: {_id: "$gender", totalPersons: {$sum: 1}, averageAge: {$avg: "$dob.age"}}},
+    {$sort: {totalPersons: -1}},
+]).pretty()
+```
+
+2. ## Accumulator Operator for _$group_ :
+
+    1. $accumulator
+    2. **$addToSet**
+    3. **$avg**
+    4. $first
+    5. $last
+    6. $max
+    7. $mergeObjects
+    8. $min
+    9. **$push**
+    10. $stdDevPop
+    11. $stdDevSamp
+    12. **$sum**
+
+
+3. ## $project
+
+```javascript
+// $concat
+db.person.aggregate([
+    {$project: {
+        _id: 0, 
+        name: {$concat: ["$name.first", " ", "$name.last"]}, 
+        email: 1
+    }}
+]).pretty()
+
+
+// $toUpper, $substrCP, $strLenCP
+db.person.aggregate([
+    {$project: {
+        _id: 0, 
+        name: {$concat: [
+                {$toUpper: {$substrCP: ["$name.first", 0, 1]}},
+                {$substrCP: ["$name.first", 0, {$subtract: [{$strLenCP: "$name.first"}, 1]}]}, 
+                " ", 
+                {$toUpper: {$substrCP: ["$name.last", 0, 1]}},
+                {$substrCP: ["$name.last", 0, {$subtract: [{$strLenCP: "$name.last"}, 1]}]},
+            ]}, 
+        email: 1
+    }}
+]).pretty()
+```
+
+4. ## Converting to Geojson Data
+
+```javascript
+db.person.aggregate([
+    //stage 1
+    {$project: {
+        _id: 0,
+        name: 1,
+        email: 1,
+        birthDate: {$convert: {input: "$dob.date", to: "date"}},
+        location: {
+            type: "Point", 
+            coordinates: [
+                {$convert: {input: "$location.coordinates.longitude", to: "double", onError: 0.0, onNull: 0.0}}, 
+                {$convert: {input: "$location.coordinates.latitude", to: "double", onError: 0.0, onNull: 0.0}}
+            ]
+        },
+        age: "$dob.age",
+    }},
+    // stage 2
+    {$project: {
+        location: 1,
+        birthDate: 1,
+        age: 1,
+        name: {$concat: [
+                {$toUpper: {$substrCP: ["$name.first", 0, 1]}},
+                {$substrCP: ["$name.first", 0, {$subtract: [{$strLenCP: "$name.first"}, 1]}]}, 
+                " ", 
+                {$toUpper: {$substrCP: ["$name.last", 0, 1]}},
+                {$substrCP: ["$name.last", 0, {$subtract: [{$strLenCP: "$name.last"}, 1]}]},
+            ]},
+        email: 1
+    }},
+    // stage 3
+    {$group: {_id: {birthYear: {$isoWeekYear: "$birthDate"}}, totalPeople: {$sum: 1}}},
+    // stage 4
+    {$sort: {totalPeople: -1}}
+]).pretty()
+```
+
+5. ## $unwind
+
+```javascript
+// $push
+db.friends.aggregate([
+    {$unwind: "$hobbies"},
+    {$group: {_id: {age: "$age"}, hobbies: {$push: "$hobbies"}}}
+]).pretty()
+
+// $addToSet
+db.friends.aggregate([
+    {$unwind: "$hobbies"},
+    {$group: {_id: {age: "$age"}, hobbies: {$addToSet: "$hobbies"}}}
+]).pretty()
+```
