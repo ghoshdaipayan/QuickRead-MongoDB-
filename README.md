@@ -810,11 +810,8 @@ db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: tru
             ```
         * _Unique with Partial Index_
             ```javascript
-            // create index on age filed but for only males
+            // create unique index on email and using partial filter expr handle collection where email is not present
             db.users.createIndex({"email": 1}, {unique: true, partialFilterExpression: {email: {$exists: true}}})
-
-            // create index on age filed but for only people who are 60 or above
-            db.users.createIndex({"age": 1}, {partialFilterExpression: {age: {$gte: 60}}})
             ```
 
     4. **TTL Index** 
@@ -824,10 +821,12 @@ db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: tru
         * 
             ```javascript
             db.session.insertOne({data: "Some data", createdAt: new Date()})
+            
             {
                 data: "Some data",
                 createdAt: ISODate("2020-05-29T07:05:02.242Z")
             }
+
             // below creates a TTL index
             db.session.createIndex({createdAt: 1}, {expireAfterSeconds: 10})
             ```
@@ -875,7 +874,7 @@ db.user.insertOne({_id: 3, name: 'Tomas', age: 55}, {writeConsern: {w: 1, j: tru
         db.users.createIndex({addresses: 1})
         db.users.createIndex({"addresses.street": 1})
         ```
-        * Compoud Index with on two array field is not possible
+        * Compoud Index on two array field is not possible
         * Compound Index witha a single field and an array field is possible
 
     8. ### **Text Index**
@@ -1034,8 +1033,9 @@ db.person.aggregate([
         email: 1
     }}
 ]).pretty()
+```
 
-
+```javascript
 // $toUpper, $substrCP, $strLenCP
 db.person.aggregate([
     {$project: {
@@ -1100,10 +1100,179 @@ db.friends.aggregate([
     {$unwind: "$hobbies"},
     {$group: {_id: {age: "$age"}, hobbies: {$push: "$hobbies"}}}
 ]).pretty()
+```
 
+```javascript
 // $addToSet
 db.friends.aggregate([
     {$unwind: "$hobbies"},
     {$group: {_id: {age: "$age"}, hobbies: {$addToSet: "$hobbies"}}}
 ]).pretty()
 ```
+6. ## $project with arrays
+
+```javascript
+// $slice
+db.friends.aggregate([
+    { $project: { _id: 0, examScore: { $slice: ["$examScores", 2, 1] } } }
+  ]).pretty();
+```
+
+```javascript
+// $size
+db.friends.aggregate([
+    { $project: { _id: 0, numScores: { $size: "$examScores" } } }
+  ]).pretty();
+```
+
+```javascript
+// $filter and $$
+db.friends.aggregate([
+    {
+      $project: {
+        _id: 0,
+        scores: { $filter: { input: '$examScores', as: 'sc', cond: { $gt: ["$$sc.score", 60] } } }
+      }
+    }
+  ]).pretty();
+```
+
+7. ## $bucket
+
+```javascript
+db.persons.aggregate([
+    {
+      $bucket: {
+        groupBy: '$dob.age',
+        boundaries: [18, 30, 40, 50, 60, 120],
+        output: {
+          numPersons: { $sum: 1 },
+          averageAge: { $avg: '$dob.age' }
+        }
+      }
+    }
+]).pretty();
+```
+
+8. ## $bucketAuto
+
+```javascript
+db.persons.aggregate([
+    {
+      $bucketAuto: {
+        groupBy: '$dob.age',
+        buckets: 5,
+        output: {
+          numPersons: { $sum: 1 },
+          averageAge: { $avg: '$dob.age' }
+        }
+      }
+    }
+]).pretty();
+```
+
+9. ## $out
+
+```javascript
+// to save output of a pipeline in new collection
+db.person.aggregate([
+    {$project: {
+        _id: 0, 
+        name: {$concat: ["$name.first", " ", "$name.last"]}, 
+        email: 1
+    }},
+    {$out: 'personSummary'}
+]).pretty()
+```
+
+10. ## $geoNear
+```javascript
+db.transformedPersons.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [-18.4, -42.8]
+        },
+        maxDistance: 1000000,
+        // num: limit the number of result
+        num: 10,
+        // query: additional query to run on collection
+        query: { age: { $gt: 30 } },
+        // distanceField: distance from the co-ordinate provided
+        distanceField: "distance"
+      }
+    }
+]).pretty();
+```
+
+# Number Types
+
+* Integers (int32)
+    > `NumberInt("123")`
+* Long (int64)
+    > `NumberLong("123456789")`
+* Doubles (float64)
+    > By default
+* High Precision Doubles (float128)
+    > `NumberDecimal("123.123")`\
+    > Upto 32 decimal point precision
+
+# Capped Collection
+
+```javascript
+// size: max size of collection
+// max: max no. of doc. in the collection
+db.createCollection("log", { capped : true, size : 5242880, max : 5000 } )
+```
+
+# Authentication & Authorization
+
+* createUser({user: <user_name>, pwd: <password>, roles: [<role1>, <role2>]})
+* updateUser()
+* dropUser()
+* mongod --auth
+
+1. On Windows, start mongod with auth mode enabled
+    ```bat
+    net stop mongod
+    mongod --auth --dbpath <path_to_db_dir>
+    ```
+
+2. Start mongo with authentication
+    ```bat
+    rem start mongo client with the credentials
+    mongo -u <user_name> -p <password>
+
+    --or--
+
+    rem start mongo client and then authenticate
+    mongo
+    >> db.auth(<user_name>, <password>)
+    ```
+
+3. Built-In Roles 
+    1. Database User Roles
+        * __read__
+        * __readWrite__
+    2. Database Administration Roles
+        * __dbAdmin__
+        * __dbOwner__
+        * __userAdmin__
+    3. Cluster Administration Roles
+        * __clusterAdmin__
+        * __clusterManager__
+        * __clusterMonitor__
+        * __hostManager__
+    4. Backup and Restoration Roles
+        * __backup__
+        * __restore__
+    5. All-Database Roles
+        * __readAnyDatabase__
+        * __readWriteAnyDatabase__
+        * __userAdminAnyDatabase__
+        * __dbAdminAnyDatabase__
+    6. Superuser Roles
+        * __root__
+    7. Internal Role
+        * __system__
